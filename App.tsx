@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import PainPoints from './components/PainPoints';
@@ -8,17 +8,85 @@ import Divisions from './components/Divisions';
 import Luciano from './components/Luciano';
 import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
+import DiagnosisCTA from './components/DiagnosisCTA';
+import DiagnosisForm from './components/DiagnosisForm';
+import AdminDashboard from './components/AdminDashboard';
+
+type View = 'home' | 'diagnosis' | 'admin' | 'success';
 
 function App() {
+  const [view, setView] = useState<View>('home');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [view]);
+
+  const renderContent = () => {
+    switch (view) {
+      case 'diagnosis':
+        return (
+          <div className="min-h-screen bg-slate-50 py-32 px-6">
+            <div className="container mx-auto">
+              <div className="text-center mb-12">
+                <button onClick={() => setView('home')} className="text-slate-400 hover:text-slate-900 flex items-center mx-auto mb-8 font-bold transition-all">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                  VOLTAR PARA O SITE
+                </button>
+                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Mapeamento Estratégico</h1>
+                <p className="text-xl text-slate-500">Responda as perguntas abaixo para receber sua análise de maturidade.</p>
+              </div>
+              <DiagnosisForm onComplete={() => setView('success')} />
+            </div>
+          </div>
+        );
+      case 'success':
+        return (
+          <div className="min-h-screen bg-white flex items-center justify-center py-32 px-6">
+            <div className="max-w-2xl w-full text-center space-y-8 animate-fadeIn">
+              <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8">
+                <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+              </div>
+              <h1 className="text-5xl font-bold text-slate-900">Diagnóstico Enviado!</h1>
+              <p className="text-2xl text-slate-600 font-light leading-relaxed">
+                Excelente escolha. Nossa equipe de especialistas já recebeu seus dados e está processando sua <span className="font-bold text-slate-900">Análise de Maturidade Empresarial</span>.
+              </p>
+              <p className="text-slate-500">Em até 24h entraremos em contato via WhatsApp para agendar sua devolutiva gratuita.</p>
+              <button 
+                onClick={() => setView('home')}
+                className="bg-slate-900 text-white px-12 py-5 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl"
+              >
+                Voltar ao Início
+              </button>
+            </div>
+          </div>
+        );
+      case 'admin':
+        return <AdminDashboard />;
+      default:
+        return (
+          <div className="min-h-screen bg-white">
+            <Hero />
+            <PainPoints />
+            <DiagnosisCTA onStartDiagnosis={() => setView('diagnosis')} />
+            <Solution />
+            <Divisions />
+            <Luciano />
+            <FinalCTA />
+          </div>
+        );
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
-      <Hero />
-      <PainPoints />
-      <Solution />
-      <Divisions />
-      <Luciano />
-      <FinalCTA />
+    <div className="min-h-screen bg-white font-sans">
+      <Navbar 
+        onAdminClick={() => setView('admin')} 
+        onHomeClick={() => setView('home')} 
+        onDiagnosisClick={() => setView('diagnosis')}
+      />
+      
+      {renderContent()}
+
       <Footer />
       
       {/* WhatsApp Floating Button */}

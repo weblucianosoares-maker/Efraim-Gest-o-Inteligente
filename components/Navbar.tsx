@@ -1,7 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  onAdminClick: () => void;
+  onHomeClick: () => void;
+  onDiagnosisClick: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onAdminClick, onHomeClick, onDiagnosisClick }) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -15,7 +21,7 @@ const Navbar: React.FC = () => {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-lg py-4' : 'bg-transparent py-6'}`}>
       <div className="container mx-auto px-6 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 cursor-pointer" onClick={onHomeClick}>
           <div className="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-xl">E</span>
           </div>
@@ -25,7 +31,25 @@ const Navbar: React.FC = () => {
         </div>
         
         <div className="hidden md:flex space-x-8 items-center">
-          {['Sobre', 'Metodologia', 'Unidades', 'Contato'].map((item) => (
+          <button 
+            onClick={onAdminClick}
+            className={`flex items-center space-x-1 font-bold transition-colors ${isScrolled ? 'text-slate-400 hover:text-slate-900' : 'text-slate-400 hover:text-white'}`}
+            title="Área Administrativa"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span className="text-xs tracking-widest">FULL</span>
+          </button>
+          
+          <button 
+            onClick={onDiagnosisClick}
+            className={`font-bold transition-colors ${isScrolled ? 'text-blue-600 hover:text-blue-800' : 'text-blue-400 hover:text-white'}`}
+          >
+            Diagnóstico
+          </button>
+
+          {['Sobre', 'Metodologia'].map((item) => (
             <a 
               key={item} 
               href={`#${item.toLowerCase()}`} 
@@ -34,6 +58,7 @@ const Navbar: React.FC = () => {
               {item}
             </a>
           ))}
+          
           <a 
             href="https://wa.me/5521972070247?text=Olá, quero agendar um diagnóstico empresarial gratuito."
             target="_blank"
