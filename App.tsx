@@ -3,37 +3,101 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import PainPoints from './components/PainPoints';
-import Solution from './components/Solution';
+import Methodology from './components/Methodology';
+import About from './components/About';
 import Divisions from './components/Divisions';
-import Luciano from './components/Luciano';
 import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 import DiagnosisCTA from './components/DiagnosisCTA';
 import DiagnosisForm from './components/DiagnosisForm';
 import AdminDashboard from './components/AdminDashboard';
+import Login from './components/Login';
+import Publications from './components/Publications';
+import ArticleView from './components/ArticleView';
+import { Article } from './constants';
 
-type View = 'home' | 'diagnosis' | 'admin' | 'success';
+type View = 'home' | 'diagnosis' | 'admin' | 'success' | 'login' | 'publications' | 'article';
 
 function App() {
   const [view, setView] = useState<View>('home');
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const users = JSON.parse(localStorage.getItem('efraim_admin_users') || '[]');
+    const masterExists = users.some((u: any) => u.username === 'Masterefraim');
+    if (!masterExists) {
+      users.push({ username: 'Masterefraim', password: '$SuceSSo2121', role: 'master' });
+      localStorage.setItem('efraim_admin_users', JSON.stringify(users));
+    }
+
+    if (view === 'home' && window.location.hash) {
+      const id = window.location.hash.substring(1);
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      window.scrollTo(0, 0);
+    }
   }, [view]);
+
+  const handleNavigate = (targetView: View, anchor?: string) => {
+    if (targetView === 'admin' && !isAdminAuthenticated) {
+      setView('login');
+      return;
+    }
+    setView(targetView);
+    if (anchor) {
+      window.location.hash = anchor;
+      if (targetView === 'home') {
+        const element = document.getElementById(anchor);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    } else {
+      window.location.hash = '';
+    }
+  };
+
+  const openArticle = (article: Article) => {
+    setSelectedArticle(article);
+    setView('article');
+  };
+
+  const handleLoginSuccess = () => {
+    setIsAdminAuthenticated(true);
+    setView('admin');
+  };
 
   const renderContent = () => {
     switch (view) {
+      case 'login':
+        return <Login onLoginSuccess={handleLoginSuccess} onBack={() => setView('home')} />;
+      case 'publications':
+        return <Publications onArticleClick={openArticle} onDiagnosisClick={() => setView('diagnosis')} />;
+      case 'article':
+        return selectedArticle ? (
+          <ArticleView 
+            article={selectedArticle} 
+            onBack={() => setView('publications')} 
+            onDiagnosisClick={() => setView('diagnosis')}
+          />
+        ) : setView('publications');
       case 'diagnosis':
         return (
           <div className="min-h-screen bg-slate-50 py-32 px-6">
             <div className="container mx-auto">
               <div className="text-center mb-12">
-                <button onClick={() => setView('home')} className="text-slate-400 hover:text-slate-900 flex items-center mx-auto mb-8 font-bold transition-all">
+                <button onClick={() => handleNavigate('home')} className="text-slate-400 hover:text-slate-900 flex items-center mx-auto mb-8 font-bold transition-all">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                   VOLTAR PARA O SITE
                 </button>
-                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Mapeamento Estratégico</h1>
-                <p className="text-xl text-slate-500">Responda as perguntas abaixo para receber sua análise de maturidade.</p>
+                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">Mapeamento de Maturidade</h1>
+                <p className="text-xl text-slate-500 font-light">Responda as perguntas abaixo para receber sua análise técnica.</p>
               </div>
               <DiagnosisForm onComplete={() => setView('success')} />
             </div>
@@ -43,34 +107,34 @@ function App() {
         return (
           <div className="min-h-screen bg-white flex items-center justify-center py-32 px-6">
             <div className="max-w-2xl w-full text-center space-y-8 animate-fadeIn">
-              <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8">
+              <div className="w-24 h-24 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl shadow-blue-500/10">
                 <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
               </div>
-              <h1 className="text-5xl font-bold text-slate-900">Diagnóstico Enviado!</h1>
+              <h1 className="text-5xl font-bold text-slate-900 tracking-tighter">Diagnóstico Recebido!</h1>
               <p className="text-2xl text-slate-600 font-light leading-relaxed">
-                Excelente escolha. Nossa equipe de especialistas já recebeu seus dados e está processando sua <span className="font-bold text-slate-900">Análise de Maturidade Empresarial</span>.
+                Excelente escolha. Nossa equipe sênior já recebeu seus dados e está processando sua <span className="font-bold text-slate-900">Análise de Maturidade Empresarial</span>.
               </p>
-              <p className="text-slate-500">Em até 24h entraremos em contato via WhatsApp para agendar sua devolutiva gratuita.</p>
+              <p className="text-slate-400 font-medium">Em até 24h entraremos em contato via WhatsApp para agendar sua devolutiva gratuita.</p>
               <button 
-                onClick={() => setView('home')}
-                className="bg-slate-900 text-white px-12 py-5 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl"
+                onClick={() => handleNavigate('home')}
+                className="bg-slate-900 text-white px-12 py-5 rounded-2xl font-bold hover:bg-blue-600 transition-all shadow-2xl"
               >
-                Voltar ao Início
+                Retornar ao Início
               </button>
             </div>
           </div>
         );
       case 'admin':
-        return <AdminDashboard />;
+        return <AdminDashboard onLogout={() => { setIsAdminAuthenticated(false); setView('home'); }} />;
       default:
         return (
           <div className="min-h-screen bg-white">
             <Hero />
             <PainPoints />
             <DiagnosisCTA onStartDiagnosis={() => setView('diagnosis')} />
-            <Solution />
+            <Methodology />
+            <About />
             <Divisions />
-            <Luciano />
             <FinalCTA />
           </div>
         );
@@ -78,23 +142,25 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans selection:bg-blue-100 selection:text-blue-900">
       <Navbar 
-        onAdminClick={() => setView('admin')} 
-        onHomeClick={() => setView('home')} 
+        onAdminClick={() => handleNavigate('admin')} 
+        onHomeClick={() => handleNavigate('home')} 
         onDiagnosisClick={() => setView('diagnosis')}
+        onNavigate={(anchor) => handleNavigate('home', anchor)}
+        onPublicationsClick={() => setView('publications')}
       />
       
       {renderContent()}
 
-      <Footer />
+      <Footer onNavigate={(anchor) => handleNavigate('home', anchor)} onPublicationsClick={() => setView('publications')} />
       
       {/* WhatsApp Floating Button */}
       <a 
         href="https://wa.me/5521972070247?text=Olá, quero falar com um consultor da Efraim."
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform active:scale-90"
+        className="fixed bottom-10 right-10 z-50 bg-[#25D366] text-white p-5 rounded-full shadow-2xl hover:scale-110 hover:-rotate-12 transition-all active:scale-95 shadow-green-500/20"
         aria-label="WhatsApp"
       >
         <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
