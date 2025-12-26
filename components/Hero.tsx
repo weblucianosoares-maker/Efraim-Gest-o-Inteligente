@@ -48,8 +48,8 @@ const Hero: React.FC = () => {
                   onClick={() => openWhatsapp(banner.whatsappMsg)}
                   className="bg-white text-slate-900 px-10 py-5 rounded-full text-lg font-bold shadow-2xl hover:bg-slate-200 transition-all transform hover:-translate-y-1 flex items-center group"
                 >
-                  👉 {banner.ctaText}
-                  <svg className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="mr-2">Agendar Agora</span>
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </button>
