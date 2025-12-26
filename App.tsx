@@ -73,20 +73,24 @@ function App() {
     setView('admin');
   };
 
-  const renderContent = () => {
+  const renderContent = (): React.ReactNode => {
     switch (view) {
       case 'login':
         return <Login onLoginSuccess={handleLoginSuccess} onBack={() => setView('home')} />;
       case 'publications':
         return <Publications onArticleClick={openArticle} onDiagnosisClick={() => setView('diagnosis')} />;
       case 'article':
-        return selectedArticle ? (
-          <ArticleView 
-            article={selectedArticle} 
-            onBack={() => setView('publications')} 
-            onDiagnosisClick={() => setView('diagnosis')}
-          />
-        ) : setView('publications');
+        if (selectedArticle) {
+          return (
+            <ArticleView 
+              article={selectedArticle} 
+              onBack={() => setView('publications')} 
+              onDiagnosisClick={() => setView('diagnosis')}
+            />
+          );
+        }
+        // Se cair aqui por erro de estado, volta para publicações
+        return <Publications onArticleClick={openArticle} onDiagnosisClick={() => setView('diagnosis')} />;
       case 'diagnosis':
         return (
           <div className="min-h-screen bg-slate-50 py-32 px-6">
@@ -111,7 +115,7 @@ function App() {
                 <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
               </div>
               <h1 className="text-5xl font-bold text-slate-900 tracking-tighter">Diagnóstico Recebido!</h1>
-              <p className="text-2xl text-slate-600 font-light leading-relaxed">
+              <p className="text-2xl text-slate-600 font-light relaxed leading-relaxed">
                 Excelente escolha. Nossa equipe sênior já recebeu seus dados e está processando sua <span className="font-bold text-slate-900">Análise de Maturidade Empresarial</span>.
               </p>
               <p className="text-slate-400 font-medium">Em até 24h entraremos em contato via WhatsApp para agendar sua devolutiva gratuita.</p>
